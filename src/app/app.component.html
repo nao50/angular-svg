@@ -1,0 +1,25 @@
+<svg width="300" height="300" viewBox="0, 0, 300, 300" style="background: #eee">
+
+  <g transform="translate(100, 100)">
+    <circle cx="0" cy="0" r="20" style="fill:red" #circle1></circle>
+  </g>
+  
+  <!-- <g appDrdr [(svgLayer)]="svgLayer" [attr.transform]="'translate(' + svgLayer.positionX + ', ' + svgLayer.positionY + ')'"> -->
+  <g [attr.transform]="'translate(' + svgLayer.positionX + ', ' + svgLayer.positionY + ')'">
+    <circle cx="0" cy="0" r="20" style="fill:blue" #circle2></circle>
+  </g>
+
+  <g>
+    <line [attr.x1]="linePt1?.x" [attr.y1]="linePt1?.y" [attr.x2]="linePt2?.x" [attr.y2]="linePt2?.y" stroke="#ff9900" stroke-width="2"></line>
+  </g>
+
+</svg>
+
+<button mat-raised-button color="primary" (click)="click($event)">Click me!</button>
+
+<p>
+  属性ディレクティブにイベント処理を登録するサンプル。<br>
+  <span appDrdr>ここの背景色</span> がマウスエンターとマウスリーブのイベントで切り替わる。
+</p>
+
+<router-outlet></router-outlet>
