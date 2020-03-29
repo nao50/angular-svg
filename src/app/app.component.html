@@ -1,25 +1,49 @@
-<svg width="300" height="300" viewBox="0, 0, 300, 300" style="background: #eee">
+<svg width="300" height="300" viewBox="0, 0, 300, 300" style="background: #eee" #svg>
 
   <g transform="translate(100, 100)">
     <circle cx="0" cy="0" r="20" style="fill:red" #circle1></circle>
   </g>
   
-  <!-- <g appDrdr [(svgLayer)]="svgLayer" [attr.transform]="'translate(' + svgLayer.positionX + ', ' + svgLayer.positionY + ')'"> -->
-  <g [attr.transform]="'translate(' + svgLayer.positionX + ', ' + svgLayer.positionY + ')'">
-    <circle cx="0" cy="0" r="20" style="fill:blue" #circle2></circle>
+  <g>
+    <circle [ngStyle]="toneStyle" cx="0" cy="0" r="20" style="fill:blue" #circle2></circle>
   </g>
 
   <g>
-    <line [attr.x1]="linePt1?.x" [attr.y1]="linePt1?.y" [attr.x2]="linePt2?.x" [attr.y2]="linePt2?.y" stroke="#ff9900" stroke-width="2"></line>
+    <line [attr.x1]="100" [attr.y1]="100" [attr.x2]="svgLayer.positionX" [attr.y2]="svgLayer.positionY" stroke="#ff9900" stroke-width="2"></line>
   </g>
 
 </svg>
 
-<button mat-raised-button color="primary" (click)="click($event)">Click me!</button>
+<!--  -->
 
-<p>
-  属性ディレクティブにイベント処理を登録するサンプル。<br>
-  <span appDrdr>ここの背景色</span> がマウスエンターとマウスリーブのイベントで切り替わる。
-</p>
+<svg width="100" height="100" viewBox="50 50 100 100">
+  <circle cx="50" cy="50" r="50"></circle>
+</svg>
+
+<!--  -->
+
+<!-- <svg width="100%" height="100%"> -->
+<div>
+  <svg width="501" height="501">
+    <defs>
+     <pattern id="smallGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+       <path d="M 10 0 L 0 0 0 10" fill="none" stroke="gray" stroke-width="0.5"/>
+     </pattern>
+     <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse">
+       <rect width="100" height="100" fill="url(#smallGrid)"/>
+       <path d="M 100 0 L 0 0 0 100" fill="none" stroke="gray" stroke-width="1"/>
+     </pattern>
+   </defs>
+   <rect width="501" height="501" fill="url(#grid)" />
+ </svg>
+</div>
+
+<!--  -->
+
+<div>
+  <svg viewBox="-50 -50 100 100" width="100px" height="100px" #svg2>
+    <circle cx="0" cy="0" r="20"></circle>
+  </svg>
+</div>
 
 <router-outlet></router-outlet>

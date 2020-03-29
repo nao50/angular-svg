@@ -7,12 +7,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 // material
 import { MatButtonModule } from '@angular/material/button';
+
 import { DrdrDirective } from './directives/drdr.directive';
+import { ZoomComponent } from './zoom/zoom.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    DrdrDirective
+    DrdrDirective,
+    ZoomComponent
   ],
   imports: [
     BrowserModule,
