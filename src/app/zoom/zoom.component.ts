@@ -69,23 +69,27 @@ export class ZoomComponent implements OnInit, AfterViewInit {
       (event: MouseEvent) => {
         if (!this.draggingGrid){
           event.stopPropagation();
-          console.log('offsetX', event.offsetX);
-          console.log('offsetY', event.offsetY);
-          console.log('clientX', event.clientX);
-          console.log('clientY', event.clientY);
+          ////////////////////////////////////////////////////////////////////////////////
+          const viewBoxList = this.svgGrid.nativeElement.getAttribute('viewBox').split(' ');
+          console.log('2LVNFKJNVKDFJN', parseInt(viewBoxList[2], 10))
+          // console.log('offsetX', event.offsetX);
+          // console.log('offsetY', event.offsetY);
+          // console.log('clientX', event.clientX);
+          // console.log('clientY', event.clientY);
+          let aaa = (501 - parseInt(viewBoxList[2], 10));
+          let bbb = (501 - parseInt(viewBoxList[3], 10));
+          console.log('aaa:', aaa, 'bbb:', bbb);
+
           if (event.offsetX) {
-            this.svgLayer.positionX = event.offsetX;
-            this.svgLayer.positionY = event.offsetY;
+            this.svgLayer.positionX = event.offsetX + parseInt(viewBoxList[0], 10);
+            this.svgLayer.positionY = event.offsetY + parseInt(viewBoxList[1], 10);
           } else {
             const { left, top } = (event.srcElement as Element).getBoundingClientRect();
-            this.svgLayer.positionX = event.clientX - left;
-            this.svgLayer.positionY = event.clientY - top;
+            this.svgLayer.positionX = event.clientX - left + parseInt(viewBoxList[0], 10);
+            this.svgLayer.positionY = event.clientY - top + parseInt(viewBoxList[1], 10);
           }
 
-          // this.svgLayer.positionX = event.clientX;
-          // this.svgLayer.positionY = event.clientY;
-
-          console.log(event.offsetX);
+          // console.log(event.offsetX);
           this.circleStyle[this.transform] = 'translate(' + this.svgLayer.positionX + 'px,' + this.svgLayer.positionY + 'px)';
         }
       }
@@ -108,9 +112,13 @@ export class ZoomComponent implements OnInit, AfterViewInit {
   }
 
   updateViewBoxMin(dx: number, dy: number, svg: ElementRef<SVGSVGElement>): void {
+    // this.svgLayer.positionX = this.svgLayer.positionX - dx;
+    // this.svgLayer.positionY = this.svgLayer.positionY - dy;
+
     const viewBoxList = svg.nativeElement.getAttribute('viewBox').split(' ');
     viewBoxList[0] = '' + (parseInt(viewBoxList[0], 10) - dx);
     viewBoxList[1] = '' + (parseInt(viewBoxList[1], 10) - dy);
+
     const viewBox = viewBoxList.join(' ');
     svg.nativeElement.setAttribute('viewBox', viewBox);
   }
@@ -118,22 +126,20 @@ export class ZoomComponent implements OnInit, AfterViewInit {
   //
   getDragAndDropPointOuter(mouseDown: Observable<Event>, mouseMove: Observable<Event>, mouseUp: Observable<Event>): Observable<Point> {
     return mouseDown.pipe(
-      switchMap((md: MouseEvent) => {
-        md.preventDefault();
-        let prevX = md.clientX;
-        let prevY = md.clientY;
+      switchMap((start: MouseEvent) => {
+        start.preventDefault();
+        let prevX = start.clientX;
+        let prevY = start.clientY;
 
         return mouseMove.pipe(
-          map((mm: MouseEvent) => {
-            mm.preventDefault();
-
+          map((move: MouseEvent) => {
+            move.preventDefault();
             const delta: Point = {
-              x: mm.clientX - prevX,
-              y: mm.clientY - prevY
+              x: move.clientX - prevX,
+              y: move.clientY - prevY
             };
-            prevX = mm.clientX;
-            prevY = mm.clientY;
-
+            prevX = move.clientX;
+            prevY = move.clientY;
             return delta;
           }),
           takeUntil(mouseUp)
@@ -168,6 +174,7 @@ export class ZoomComponent implements OnInit, AfterViewInit {
   //
   getEventPosition(we: WheelEvent): Point {
     const point: Point = {x: 0, y: 0};
+
     if (we.offsetX) {
       point.x = we.offsetX;
       point.y = we.offsetY;
