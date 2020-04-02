@@ -45,10 +45,10 @@ export class ZoomComponent implements OnInit, AfterViewInit {
     const scaleFactor = 1.01;
 
     // WheelEvent
-    mousewheelGrid.subscribe((me: WheelEvent) => {
-      me.preventDefault();
-      const position = this.getEventPosition(me);
-      const scale = Math.pow(scaleFactor, me.deltaY < 0 ? 1 : -1);
+    mousewheelGrid.subscribe((wheel: WheelEvent) => {
+      wheel.preventDefault();
+      const position = this.getEventPosition(wheel);
+      const scale = Math.pow(scaleFactor, wheel.deltaY < 0 ? 1 : -1);
       this.zoomAtPoint(position, this.svgGrid.nativeElement, scale);
     });
 
@@ -71,18 +71,22 @@ export class ZoomComponent implements OnInit, AfterViewInit {
           event.stopPropagation();
           ////////////////////////////////////////////////////////////////////////////////
           const viewBoxList = this.svgGrid.nativeElement.getAttribute('viewBox').split(' ');
-          console.log('2LVNFKJNVKDFJN', parseInt(viewBoxList[2], 10))
+
           // console.log('offsetX', event.offsetX);
           // console.log('offsetY', event.offsetY);
           // console.log('clientX', event.clientX);
           // console.log('clientY', event.clientY);
-          let aaa = (501 - parseInt(viewBoxList[2], 10));
-          let bbb = (501 - parseInt(viewBoxList[3], 10));
+          const aaa = parseInt(viewBoxList[2], 10);
+          const bbb = parseInt(viewBoxList[3], 10);
+          const ccc = (501 - parseInt(viewBoxList[2], 10));
+          const ddd = (501 - parseInt(viewBoxList[3], 10));
+          const eee = (parseInt(viewBoxList[2], 10) / 501);
+          const fff = (parseInt(viewBoxList[3], 10) / 501);
           console.log('aaa:', aaa, 'bbb:', bbb);
 
           if (event.offsetX) {
-            this.svgLayer.positionX = event.offsetX + parseInt(viewBoxList[0], 10);
-            this.svgLayer.positionY = event.offsetY + parseInt(viewBoxList[1], 10);
+            this.svgLayer.positionX = (event.offsetX + parseInt(viewBoxList[0], 10)) * eee;
+            this.svgLayer.positionY = (event.offsetY + parseInt(viewBoxList[1], 10)) * fff;
           } else {
             const { left, top } = (event.srcElement as Element).getBoundingClientRect();
             this.svgLayer.positionX = event.clientX - left + parseInt(viewBoxList[0], 10);
@@ -172,16 +176,15 @@ export class ZoomComponent implements OnInit, AfterViewInit {
   }
 
   //
-  getEventPosition(we: WheelEvent): Point {
+  getEventPosition(wheel: WheelEvent): Point {
     const point: Point = {x: 0, y: 0};
-
-    if (we.offsetX) {
-      point.x = we.offsetX;
-      point.y = we.offsetY;
+    if (wheel.offsetX) {
+      point.x = wheel.offsetX;
+      point.y = wheel.offsetY;
     } else {
-      const { left, top } = (we.srcElement as Element ).getBoundingClientRect();
-      point.x = we.clientX - left;
-      point.y = we.clientY - top;
+      const { left, top } = (wheel.srcElement as Element ).getBoundingClientRect();
+      point.x = wheel.clientX - left;
+      point.y = wheel.clientY - top;
     }
     return point;
   }
