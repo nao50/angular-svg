@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, HostListener, 
 import { of, fromEvent, animationFrameScheduler, Subject, interval, Observable } from 'rxjs';
 import { map, switchMap, takeUntil, startWith, tap, filter, subscribeOn, timeout } from 'rxjs/operators';
 import { SvgLayer } from '../interfaces/svg';
+import { v4 as uuidv4 } from 'uuid';
 
 interface Point {
   x: number;
@@ -18,13 +19,12 @@ export class ZoomComponent implements OnInit, AfterViewInit {
   @ViewChild('svgCircle', { read: ElementRef }) svgCircle: ElementRef<SVGSVGElement>;
 
   svgLayer: SvgLayer;
+  svgLayers: SvgLayer[] = [];
+
   circleStyle: any;
   transform = 'transform';
   draggingNode = false;
   draggingGrid = false;
-  // circleStyle = {
-  //   transform: 'translate(' + this.svgLayer.positionX + 'px,' + this.svgLayer.positionY + 'px)',
-  // };
 
   constructor() { }
 
@@ -37,7 +37,8 @@ export class ZoomComponent implements OnInit, AfterViewInit {
     const mousemoveGrid = fromEvent(this.svgGrid.nativeElement, 'mousemove');
     const mouseupGrid = fromEvent(document, 'mouseup');
     const mousedownCircle = fromEvent(this.svgCircle.nativeElement, 'mousedown');
-    const mousemoveCircle = fromEvent(this.svgCircle.nativeElement, 'mousemove');
+    // const mousemoveCircle = fromEvent(this.svgCircle.nativeElement, 'mousemove');
+    const mousemoveCircle = fromEvent(document, 'mousemove');
     const mouseupCircle = fromEvent(document, 'mouseup');
 
     const mousewheelGrid = fromEvent(this.svgGrid.nativeElement, 'wheel');
@@ -109,6 +110,7 @@ export class ZoomComponent implements OnInit, AfterViewInit {
       positionX: 250,
       positionY: 250,
       rotate: 100,
+      color: 'red',
     };
 
     this.circleStyle = {
@@ -228,6 +230,23 @@ export class ZoomComponent implements OnInit, AfterViewInit {
       transform: 'translate(' + this.svgLayer.positionX + 'px,' + this.svgLayer.positionY + 'px)',
     };
     console.log(this.svgLayer);
+  }
+
+  addSvgLayers(){
+    const randomMin = 100 ;
+    const randomMax = 400 ;
+    const randomColor = [ 'blue', 'black', 'red', 'green' ] ;
+
+    const newSvgLayer: SvgLayer = {
+      id: uuidv4(),
+      width: 100,
+      height: 100,
+      positionX: Math.floor( Math.random() * (randomMax + 1 - randomMin) ) + randomMin,
+      positionY: Math.floor( Math.random() * (randomMax + 1 - randomMin) ) + randomMin,
+      rotate: 0,
+      color: randomColor[ Math.floor( Math.random() * randomColor.length ) ],
+    };
+    this.svgLayers.push(newSvgLayer);
   }
 
 }

@@ -21,6 +21,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     positionX: 250,
     positionY: 200,
     rotate: 100,
+    color: 'red',
   };
 
   toneStyle = {

@@ -10,12 +10,14 @@ import { MatButtonModule } from '@angular/material/button';
 
 import { DrdrDirective } from './directives/drdr.directive';
 import { ZoomComponent } from './zoom/zoom.component';
+import { GridComponent } from './grid/grid.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     DrdrDirective,
-    ZoomComponent
+    ZoomComponent,
+    GridComponent
   ],
   imports: [
     BrowserModule,

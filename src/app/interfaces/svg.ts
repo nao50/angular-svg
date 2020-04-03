@@ -8,4 +8,5 @@ export interface SvgLayer {
   positionX: Pixel;
   positionY: Pixel;
   rotate: Radian;
+  color: string;
 }
