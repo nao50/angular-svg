@@ -76,17 +76,18 @@ export class ZoomComponent implements OnInit, AfterViewInit {
           // console.log('offsetY', event.offsetY);
           // console.log('clientX', event.clientX);
           // console.log('clientY', event.clientY);
-          const aaa = parseInt(viewBoxList[2], 10);
-          const bbb = parseInt(viewBoxList[3], 10);
-          const ccc = (501 - parseInt(viewBoxList[2], 10));
-          const ddd = (501 - parseInt(viewBoxList[3], 10));
-          const eee = (parseInt(viewBoxList[2], 10) / 501);
-          const fff = (parseInt(viewBoxList[3], 10) / 501);
-          console.log('aaa:', aaa, 'bbb:', bbb);
+          // const aaa = parseInt(viewBoxList[2], 10);
+          // const bbb = parseInt(viewBoxList[3], 10);
+          // const ccc = (501 - parseInt(viewBoxList[2], 10));
+          // const ddd = (501 - parseInt(viewBoxList[3], 10));
+          const aspX = (parseInt(viewBoxList[2], 10) / 501);
+          const aspY = (parseInt(viewBoxList[3], 10) / 501);
 
           if (event.offsetX) {
-            this.svgLayer.positionX = (event.offsetX + parseInt(viewBoxList[0], 10)) * eee;
-            this.svgLayer.positionY = (event.offsetY + parseInt(viewBoxList[1], 10)) * fff;
+            this.svgLayer.positionX = ((event.offsetX * aspX) + parseInt(viewBoxList[0], 10)) ;
+            this.svgLayer.positionY = ((event.offsetY * aspY) + parseInt(viewBoxList[1], 10)) ;
+            // this.svgLayer.positionX = (event.offsetX + parseInt(viewBoxList[0], 10)) * eee;
+            // this.svgLayer.positionY = (event.offsetY + parseInt(viewBoxList[1], 10)) * fff;
           } else {
             const { left, top } = (event.srcElement as Element).getBoundingClientRect();
             this.svgLayer.positionX = event.clientX - left + parseInt(viewBoxList[0], 10);
@@ -201,14 +202,16 @@ export class ZoomComponent implements OnInit, AfterViewInit {
     const x = minX + width * sx;
     const y = minY + height * sy;
 
-    // const scaledWidth = width * scale;
-    // const scaledHeight = height * scale;
     // const scaledMinX = x + scale * (minX - x);
     // const scaledMinY = y + scale * (minY - y);
-    const scaledWidth = (width * scale) <= 750 ? (width * scale) : 750;
-    const scaledHeight = (height * scale) <= 750 ? (height * scale) : 750;
+    // const scaledWidth = width * scale;
+    // const scaledHeight = height * scale;
+
     const scaledMinX = (x + scale * (minX - x)) >= -100 ? (x + scale * (minX - x)) : -100;
     const scaledMinY = (y + scale * (minY - y)) >= -100 ? (y + scale * (minY - y)) : -100;
+    const scaledWidth = (width * scale) <= 750 ? (width * scale) : 750;
+    const scaledHeight = (height * scale) <= 750 ? (height * scale) : 750;
+
 
     const scaledViewBox = [scaledMinX, scaledMinY, scaledWidth, scaledHeight]
       .map(s => s.toFixed(2))
