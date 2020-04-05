@@ -104,7 +104,7 @@ export class ZoomComponent implements OnInit, AfterViewInit {
 
   initCircle() {
     this.svgLayer = {
-      id: 2,
+      id: '2',
       width: 100,
       height: 100,
       positionX: 250,

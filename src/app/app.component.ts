@@ -15,7 +15,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   stat = 'moved';
   svgLayer: SvgLayer = {
-    id: 1,
+    id: '2',
     width: 100,
     height: 100,
     positionX: 250,

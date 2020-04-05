@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, HostListener, ViewChild, ElementRef } from '@angular/core';
-import { SvgLayer } from '../interfaces/svg';
+import { SVGLayer, ConnectionNode, Connection } from '../interfaces/svg';
 import { v4 as uuidv4 } from 'uuid';
 
 interface Point {
@@ -15,37 +15,41 @@ interface Point {
 export class Grid2Component implements OnInit, AfterViewInit {
   @ViewChild('svgGrid', { read: ElementRef }) svgGrid: ElementRef<SVGSVGElement>;
 
-  svgLayers: SvgLayer[] = [];
-  svgLayer: SvgLayer;
+  svgLayers: SVGLayer[] = [];
+  svgLayer: SVGLayer;
   isDraggingSVGLayer = false;
-  draggingSVGLayer: SvgLayer;
-  selectedSVGLayer: SvgLayer;
-  selectedSVGLayers: SvgLayer[] = [];
+  draggingSVGLayer: SVGLayer;
+  selectedSVGLayer: SVGLayer;
+  selectedSVGLayers: SVGLayer[] = [];
   isDraggingGrid = false;
   gridStartClientX: number;
   gridStartClientY: number;
   scaleFactor = 1.02;
-  rectClass = ['rect'];
-  shadow = 'url(#shadow)';
+
+  // svgLayerPaths https://stackoverflow.com/questions/50877255/how-to-set-attribute-d-pf-path-element-in-angular-2
+  Connections: Connection[] = [];
+  draggingConnection: Connection;
+  isDraggingConnection = false;
 
   @HostListener( 'document:pointerup', [ '$event' ] )
   public upHandleGrid(event: PointerEvent) {
     this.isDraggingGrid = false;
   }
   @HostListener( 'document:pointerup', [ '$event' ] )
-  public upHandleSVGLayer(pointerEvent: PointerEvent, svgLayer: SvgLayer){
+  public upHandleSVGLayer(pointerEvent: PointerEvent, svgLayer: SVGLayer){
     this.isDraggingSVGLayer = false;
     this.draggingSVGLayer = null;
   }
 
   @HostListener( 'document:pointermove', [ '$event' ] )
-  public moveHandleSVGLayer(pointerEvent: PointerEvent, svgLayer: SvgLayer){
+  public moveHandleSVGLayer(pointerEvent: PointerEvent, svgLayer: SVGLayer){
     pointerEvent.preventDefault();
     pointerEvent.stopPropagation();
     if (!this.isDraggingGrid && this.isDraggingSVGLayer){
       const viewBoxList = this.svgGrid.nativeElement.getAttribute('viewBox').split(' ');
       const aspX = (parseInt(viewBoxList[2], 10) / 501);
       const aspY = (parseInt(viewBoxList[3], 10) / 501);
+      // move SVGLayer
       if (pointerEvent.offsetX) {
         this.draggingSVGLayer.positionX = this.round((pointerEvent.offsetX * aspX) + parseInt(viewBoxList[0], 10)) ;
         this.draggingSVGLayer.positionY = this.round((pointerEvent.offsetY * aspY) + parseInt(viewBoxList[1], 10)) ;
@@ -53,6 +57,24 @@ export class Grid2Component implements OnInit, AfterViewInit {
         const { left, top } = (pointerEvent.srcElement as Element).getBoundingClientRect();
         this.draggingSVGLayer.positionX = pointerEvent.clientX - left + parseInt(viewBoxList[0], 10);
         this.draggingSVGLayer.positionY = pointerEvent.clientY - top + parseInt(viewBoxList[1], 10);
+      }
+      // move connector
+      this.draggingSVGLayer.connectionNodes[0].cx = this.draggingSVGLayer.positionX - 50;
+      this.draggingSVGLayer.connectionNodes[0].cy = this.draggingSVGLayer.positionY;
+      this.draggingSVGLayer.connectionNodes[1].cx = this.draggingSVGLayer.positionX + 50;
+      this.draggingSVGLayer.connectionNodes[1].cy = this.draggingSVGLayer.positionY;
+      // move connection
+      if (this.draggingSVGLayer.connectionNodes[0].connections?.length > 0) {
+        this.draggingSVGLayer.connectionNodes[0].connections.forEach((connection: Connection) => {
+          connection.endPointX = this.draggingSVGLayer.connectionNodes[0].cx;
+          connection.endPointY = this.draggingSVGLayer.connectionNodes[0].cy;
+        });
+      }
+      if (this.draggingSVGLayer.connectionNodes[1].connections?.length > 0) {
+        this.draggingSVGLayer.connectionNodes[1].connections.forEach((connection: Connection) => {
+          connection.startPointX = this.draggingSVGLayer.connectionNodes[1].cx;
+          connection.startPointY = this.draggingSVGLayer.connectionNodes[1].cy;
+        });
       }
     }
   }
@@ -160,7 +182,7 @@ export class Grid2Component implements OnInit, AfterViewInit {
   clickHandleGrid(pointerEvent: PointerEvent){
     pointerEvent.preventDefault();
     if (this.selectedSVGLayers.length > 0){
-      this.selectedSVGLayers.forEach((selectedSVGLayer: SvgLayer) => {
+      this.selectedSVGLayers.forEach((selectedSVGLayer: SVGLayer) => {
         selectedSVGLayer.isSelected = false;
         selectedSVGLayer.shadowFilter = 'url(#shadow)';
       });
@@ -170,24 +192,24 @@ export class Grid2Component implements OnInit, AfterViewInit {
 
   //////////////////////////////////////////////////////////////////////////////
   // Handle SVGLayer
-  downHandleSVGLayer(pointerEvent: PointerEvent, svgLayer: SvgLayer){
+  downHandleSVGLayer(pointerEvent: PointerEvent, svgLayer: SVGLayer){
     this.isDraggingGrid = false;
     this.isDraggingSVGLayer = true;
     this.draggingSVGLayer = svgLayer;
     pointerEvent.preventDefault();
   }
 
-  // upHandleSVGLayer(pointerEvent: PointerEvent, svgLayer: SvgLayer){}
+  // upHandleSVGLayer(pointerEvent: PointerEvent, svgLayer: SVGLayer){}
 
-  // moveHandleSVGLayer(pointerEvent: PointerEvent, svgLayer: SvgLayer){}
+  // moveHandleSVGLayer(pointerEvent: PointerEvent, svgLayer: SVGLayer){}
 
-  clickHandleSVGLayer(pointerEvent: PointerEvent, svgLayer: SvgLayer){
+  clickHandleSVGLayer(pointerEvent: PointerEvent, svgLayer: SVGLayer){
     pointerEvent.preventDefault();
     pointerEvent.stopPropagation();
 
     if (!pointerEvent.shiftKey) {
       if (this.selectedSVGLayers.length > 0){
-        this.selectedSVGLayers.forEach((selectedSVGLayer: SvgLayer) => {
+        this.selectedSVGLayers.forEach((selectedSVGLayer: SVGLayer) => {
           selectedSVGLayer.isSelected = false;
           selectedSVGLayer.shadowFilter = 'url(#shadow)';
         });
@@ -201,6 +223,41 @@ export class Grid2Component implements OnInit, AfterViewInit {
   }
 
   //////////////////////////////////////////////////////////////////////////////
+  // Handle SVGLayer
+  downHandleArrow(pointerEvent: PointerEvent, svgLayer: SVGLayer, connectionNode: ConnectionNode){
+    pointerEvent.preventDefault();
+    pointerEvent.stopPropagation();
+
+    const spX = +(pointerEvent.srcElement as Element ).getAttribute('cx');
+    const spY = +(pointerEvent.srcElement as Element ).getAttribute('cy');
+
+    const connection: Connection = {
+      id: uuidv4(),
+      connectedOutPointID: connectionNode.id,
+      // connectedInPointID: '',
+      startPointX: spX,
+      startPointY: spY,
+      // controlPointX: 100,
+      // controlPointY: 300,
+      // centerPointX: 200,
+      // centerPointY: 0,
+      // endPointX: 400,
+      // endPointY: 0,
+      // color: 'red',
+    };
+    connectionNode.connectedPoint = 'startPoint';
+    this.draggingConnection = connection;
+    // connectionNode.connections.push(connection);
+
+  }
+
+  upHandleArrow(pointerEvent: PointerEvent, svgLayer: SVGLayer, connectionNode: ConnectionNode){}
+
+  moveHandleArrow(pointerEvent: PointerEvent, svgLayer: SVGLayer, connectionNode: ConnectionNode){}
+
+
+
+  //////////////////////////////////////////////////////////////////////////////
   // button
   move(){
   }
@@ -211,18 +268,48 @@ export class Grid2Component implements OnInit, AfterViewInit {
     // const randomColor = [ 'blue', 'black', 'red', 'green', 'none' ];
     const randomColor = ['white'];
 
-    const newSvgLayer: SvgLayer = {
+    const w = 100;
+    const h = 100;
+    const pX = this.round(Math.floor( Math.random() * (randomMax + 1 - randomMin) ) + randomMin);
+    const pY = this.round(Math.floor( Math.random() * (randomMax + 1 - randomMin) ) + randomMin);
+
+    const newSvgLayer: SVGLayer = {
       id: uuidv4(),
-      width: 100,
-      height: 100,
-      positionX: this.round(Math.floor( Math.random() * (randomMax + 1 - randomMin) ) + randomMin),
-      positionY: this.round(Math.floor( Math.random() * (randomMax + 1 - randomMin) ) + randomMin),
+      width: w,
+      height: h,
+      positionX: pX,
+      positionY: pY,
       rotate: 0,
       color: randomColor[ Math.floor( Math.random() * randomColor.length ) ],
       rx: 10,
       ry: 10,
       isSelected: false,
       shadowFilter: 'url(#shadow)',
+      //
+      connectionNodes: [
+        {
+          id: uuidv4(),
+          cx: pX - (w / 2),
+          cy: pY,
+          r: 10,
+          stroke: 'black',
+          strokeWidth: 1,
+          fill: 'white',
+          connectedPoint: '',
+          connections: [],
+        },
+        {
+          id: uuidv4(),
+          cx: pX + (w / 2),
+          cy: pY,
+          r: 10,
+          stroke: 'black',
+          strokeWidth: 1,
+          fill: 'white',
+          connectedPoint: '',
+          connections: [],
+        },
+      ],
     };
     this.svgLayers.push(newSvgLayer);
   }
