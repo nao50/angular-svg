@@ -48,7 +48,6 @@ export class Grid2Component implements OnInit, AfterViewInit {
     pointerEvent.preventDefault();
     pointerEvent.stopPropagation();
     if (!this.isDraggingGrid && !this.isDraggingConnection && this.isDraggingSVGLayer){
-      console.log(this.isDraggingConnection);
       const viewBoxList = this.svgGrid.nativeElement.getAttribute('viewBox').split(' ');
       const aspX = (parseInt(viewBoxList[2], 10) / 501);
       const aspY = (parseInt(viewBoxList[3], 10) / 501);
@@ -81,7 +80,21 @@ export class Grid2Component implements OnInit, AfterViewInit {
       }
     }
     if (!this.isDraggingGrid && this.isDraggingConnection && !this.isDraggingSVGLayer){
-      console.log('AAAAAAAAAAAA');
+      const viewBoxList = this.svgGrid.nativeElement.getAttribute('viewBox').split(' ');
+      const aspX = (parseInt(viewBoxList[2], 10) / 501);
+      const aspY = (parseInt(viewBoxList[3], 10) / 501);
+
+      this.draggingConnection.endPointX = this.round((pointerEvent.offsetX * aspX) + parseInt(viewBoxList[0], 10));
+      this.draggingConnection.endPointY = this.round((pointerEvent.offsetY * aspY) + parseInt(viewBoxList[1], 10));
+
+      this.draggingConnection.centerPointX = (this.draggingConnection.endPointX - this.draggingConnection.startPointX) / 2 ;
+      this.draggingConnection.centerPointY = (this.draggingConnection.endPointY - this.draggingConnection.startPointY) / 2 ;
+
+      this.draggingConnection.controlPointX = this.draggingConnection.startPointX + 100;
+      this.draggingConnection.controlPointY = this.draggingConnection.startPointY + 100;
+
+      console.log('this.draggingConnection', this.draggingConnection);
+
     }
   }
 
@@ -109,6 +122,7 @@ export class Grid2Component implements OnInit, AfterViewInit {
     this.isDraggingSVGLayer = false;
     this.isDraggingConnection = false;
     this.draggingSVGLayer = null;
+    this.draggingConnection = null;
   }
 
 
@@ -261,20 +275,21 @@ export class Grid2Component implements OnInit, AfterViewInit {
     const connection: Connection = {
       id: uuidv4(),
       connectedOutPointID: connectionNode.id,
-      // connectedInPointID: '',
+      connectedInPointID: '',
       startPointX: spX,
       startPointY: spY,
-      // controlPointX: 100,
-      // controlPointY: 300,
-      // centerPointX: 200,
-      // centerPointY: 0,
-      // endPointX: 400,
-      // endPointY: 0,
-      // color: 'red',
+      controlPointX: 0,
+      controlPointY: 0,
+      centerPointX: 0,
+      centerPointY: 0,
+      endPointX: 0,
+      endPointY: 0,
+      color: 'red',
     };
     connectionNode.connectedPoint = 'startPoint';
     this.draggingConnection = connection;
-    // connectionNode.connections.push(connection);
+
+    connectionNode.connections.push(connection);
 
   }
 
