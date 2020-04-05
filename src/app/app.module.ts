@@ -11,13 +11,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { DrdrDirective } from './directives/drdr.directive';
 import { ZoomComponent } from './zoom/zoom.component';
 import { GridComponent } from './grid/grid.component';
+import { Grid2Component } from './grid2/grid2.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     DrdrDirective,
     ZoomComponent,
-    GridComponent
+    GridComponent,
+    Grid2Component
   ],
   imports: [
     BrowserModule,

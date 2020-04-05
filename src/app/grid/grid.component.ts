@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, HostListener, ChangeDetectorRef, ChangeDetectionStrategy, OnDestroy, QueryList, ViewChildren } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy, QueryList, ViewChildren } from '@angular/core';
 import { of, fromEvent, animationFrameScheduler, Subject, interval, Observable } from 'rxjs';
 import { map, switchMap, takeUntil, startWith, tap, filter, subscribeOn, timeout } from 'rxjs/operators';
 import { SvgLayer } from '../interfaces/svg';
@@ -16,13 +16,20 @@ interface Point {
 })
 export class GridComponent implements OnInit, AfterViewInit {
   @ViewChild('svgGrid', { read: ElementRef }) svgGrid: ElementRef<SVGSVGElement>;
-  @ViewChildren('svgLayerGroup', { read: ElementRef }) children: QueryList<ElementRef>;
+  @ViewChildren('svgLayerGroup', { read: ElementRef }) svgLayerGroup: QueryList<ElementRef>;
+
+  mousemoveSvgLayers: Observable<Event>;
+  mouseupSvgLayers: Observable<Event>;
+  mousedownSvgLayers: Observable<Event>;
 
   svgLayers: SvgLayer[] = [];
+  svgLayer: SvgLayer;
   idDraggingSVGLayer = false;
   idDraggingGrid = false;
 
   scaleFactor = 1.01;
+
+  items = [1, 2, 3, 4, 5];
 
   constructor() { }
 
@@ -30,12 +37,16 @@ export class GridComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-
     // Grid Events
     const mousedownGrid = fromEvent(this.svgGrid.nativeElement, 'pointerdown');
     const mousemoveGrid = fromEvent(this.svgGrid.nativeElement, 'pointermove');
     const mouseupGrid = fromEvent(document, 'pointerup');
     const mousewheelGrid = fromEvent(this.svgGrid.nativeElement, 'wheel');
+    // SvgLayers Events
+    // this.mousedownSvgLayers = fromEvent(this.svgLayerGroup, 'pointerdown');
+    this.mousemoveSvgLayers = fromEvent(document, 'pointermove');
+    this.mouseupSvgLayers = fromEvent(document, 'pointerup');
+
 
     ///////////////////////
     // WheelEvent in Grid
@@ -61,7 +72,7 @@ export class GridComponent implements OnInit, AfterViewInit {
 
 
   //////////////////////////////////////////////////////////////////////
-  // grid 
+  // grid
   getEventPosition(wheel: WheelEvent): Point {
     const point: Point = {x: 0, y: 0};
     if (wheel.offsetX) {
@@ -94,7 +105,7 @@ export class GridComponent implements OnInit, AfterViewInit {
     svg.setAttribute('viewBox', scaledViewBox);
   }
 
-  // grid 
+  // grid
   getDragAndDropPointInGrid(mouseDown: Observable<Event>, mouseMove: Observable<Event>, mouseUp: Observable<Event>): Observable<Point> {
     return mouseDown.pipe(
       switchMap((start: MouseEvent) => {
@@ -103,6 +114,7 @@ export class GridComponent implements OnInit, AfterViewInit {
         let prevY = start.clientY;
         return mouseMove.pipe(
           map((move: MouseEvent) => {
+            console.log('moveEEEEEE:', move);
             move.preventDefault();
             const delta: Point = {
               x: move.clientX - prevX,
@@ -118,7 +130,7 @@ export class GridComponent implements OnInit, AfterViewInit {
     );
   }
 
-  // grid 
+  // grid
   updateViewBoxMin(dx: number, dy: number, svg: ElementRef<SVGSVGElement>): void {
     const viewBoxList = svg.nativeElement.getAttribute('viewBox').split(' ');
     viewBoxList[0] = '' + (parseInt(viewBoxList[0], 10) - dx);
@@ -129,6 +141,56 @@ export class GridComponent implements OnInit, AfterViewInit {
 
   //////////////////////////////////////////////////////////////////////
   // svg layer
+  getDragAndDropPointInSVGLayer(mouseDown: Observable<Event>, mouseMove: Observable<Event>, mouseUp: Observable<Event>): Observable<Point> {
+    return mouseDown.pipe(
+      switchMap((start: MouseEvent) => {
+        console.log('node drag start');
+        this.idDraggingSVGLayer = true;
+        return mouseMove.pipe(
+          map((move: MouseEvent) => {
+            console.log('node drag moving');
+            move.preventDefault();
+            move.stopPropagation();
+            mouseUp.subscribe(() => {
+              console.log('node drag finish');
+              this.idDraggingSVGLayer = false;
+            });
+            return move;
+          }),
+          takeUntil(mouseUp)
+        );
+      })
+    );
+  }
+
+  ///////////////////////
+    // Node DragAndDrop Event
+    dragAndDropSVGLayer(pEvent: PointerEvent, svgLayer: SvgLayer){
+      const mousedownSvgLayer = fromEvent(pEvent.srcElement as Element, 'pointerdown');
+
+      this.getDragAndDropPointInSVGLayer(mousedownSvgLayer, this.mousemoveSvgLayers, this.mouseupSvgLayers).pipe(
+        subscribeOn(animationFrameScheduler)
+      ).subscribe(
+        (event: MouseEvent) => {
+          if (!this.idDraggingGrid){
+            event.stopPropagation();
+            const viewBoxList = this.svgGrid.nativeElement.getAttribute('viewBox').split(' ');
+            const aspX = (parseInt(viewBoxList[2], 10) / 501);
+            const aspY = (parseInt(viewBoxList[3], 10) / 501);
+
+            if (event.offsetX) {
+              svgLayer.positionX = ((event.offsetX * aspX) + parseInt(viewBoxList[0], 10)) ;
+              svgLayer.positionY = ((event.offsetY * aspY) + parseInt(viewBoxList[1], 10)) ;
+            } else {
+              const { left, top } = (event.srcElement as Element).getBoundingClientRect();
+              svgLayer.positionX = event.clientX - left + parseInt(viewBoxList[0], 10);
+              svgLayer.positionY = event.clientY - top + parseInt(viewBoxList[1], 10);
+            }
+
+          }
+        }
+      );
+    }
 
 
   //////////////////////////////////////////////////////////////////////
@@ -149,23 +211,19 @@ export class GridComponent implements OnInit, AfterViewInit {
       positionY: Math.floor( Math.random() * (randomMax + 1 - randomMin) ) + randomMin,
       rotate: 0,
       color: randomColor[ Math.floor( Math.random() * randomColor.length ) ],
+      rx: 10,
+      ry: 10,
+      isSelected: false,
+      shadowFilter: 'url(#shadow)',
     };
     this.svgLayers.push(newSvgLayer);
 
     //////
-    // console.log('this.children', this.children);
-
-    // this.children.changes.subscribe((r) => {
-    //   console.log(r);
-    // });
-
-    this.children.forEach(child => {
-      console.log('child.nativeElement', child);
+    this.svgLayerGroup.changes.subscribe((ql: QueryList<ElementRef>) => {
+      ql.toArray().forEach((el: ElementRef<SVGSVGElement>) => {
+        this.mousedownSvgLayers = fromEvent(el.nativeElement, 'mousedown');
+      });
     });
-
-    // this.children.map(child => {
-    //   console.log('child.nativeElement', child.nativeElement.childNodes);
-    // });
 
   }
 

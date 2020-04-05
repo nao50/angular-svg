@@ -9,4 +9,18 @@ export interface SvgLayer {
   positionY: Pixel;
   rotate: Radian;
   color: string;
+  rx: number;
+  ry: number;
+  isSelected: boolean;
+  shadowFilter: string;
+  // jointNode: JointNode[];
+}
+
+export interface JointNode {
+  cx: number;
+  cy: number;
+  r: number;
+  stroke: string;
+  strokeWidth: number;
+  fill: string;
 }

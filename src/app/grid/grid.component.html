@@ -14,9 +14,9 @@
     <rect width="501" height="501" fill="url(#grid)" />
 
     <!--  -->
-    <!-- <g #svgLayerGroup> -->
-      <g *ngFor="let svgLayer of svgLayers" #svgLayerGroup>
-        <rect attr.x="{{ svgLayer.positionX - svgLayer.width/2 }}" attr.y="{{ svgLayer.positionY - svgLayer.height/2 }}" attr.width="{{ svgLayer.width }}" attr.height="{{ svgLayer.height }}" stroke="black" stroke-width="0" attr.fill="{{ svgLayer.color }}" />
+    <!-- <g> -->
+      <g *ngFor="let svgLayer of svgLayers; let i = index" #svgLayerGroup>
+        <rect (pointerdown)="dragAndDropSVGLayer($event, svgLayer)" attr.id="{{svgLayer.id}}" attr.x="{{ svgLayer.positionX - svgLayer.width/2 }}" attr.y="{{ svgLayer.positionY - svgLayer.height/2 }}" attr.width="{{ svgLayer.width }}" attr.height="{{ svgLayer.height }}" stroke="black" stroke-width="0" attr.fill="{{ svgLayer.color }}"/>
       </g>
     <!-- </g> -->
     <!--  -->
@@ -38,3 +38,7 @@
 <br>
 <br>
 <br>
+
+<div *ngFor="let item of items; let i = index">
+  <div id="{{i}}" #hodvsjdv>{{item}}</div>
+</div>

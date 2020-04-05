@@ -111,6 +111,10 @@ export class ZoomComponent implements OnInit, AfterViewInit {
       positionY: 250,
       rotate: 100,
       color: 'red',
+      rx: 10,
+      ry: 10,
+      isSelected: false,
+      shadowFilter: 'url(#shadow)',
     };
 
     this.circleStyle = {
@@ -245,6 +249,10 @@ export class ZoomComponent implements OnInit, AfterViewInit {
       positionY: Math.floor( Math.random() * (randomMax + 1 - randomMin) ) + randomMin,
       rotate: 0,
       color: randomColor[ Math.floor( Math.random() * randomColor.length ) ],
+      rx: 10,
+      ry: 10,
+      isSelected: false,
+      shadowFilter: 'url(#shadow)',
     };
     this.svgLayers.push(newSvgLayer);
   }

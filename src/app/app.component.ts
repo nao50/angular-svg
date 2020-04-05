@@ -22,6 +22,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     positionY: 200,
     rotate: 100,
     color: 'red',
+    rx: 10,
+    ry: 10,
+    isSelected: false,
+    shadowFilter: 'url(#shadow)',
   };
 
   toneStyle = {
