@@ -45,7 +45,8 @@ export class Grid2Component implements OnInit, AfterViewInit {
   public moveHandleSVGLayer(pointerEvent: PointerEvent, svgLayer: SVGLayer){
     pointerEvent.preventDefault();
     pointerEvent.stopPropagation();
-    if (!this.isDraggingGrid && this.isDraggingSVGLayer){
+    if (!this.isDraggingGrid && !this.isDraggingConnection && this.isDraggingSVGLayer){
+      console.log(this.isDraggingConnection);
       const viewBoxList = this.svgGrid.nativeElement.getAttribute('viewBox').split(' ');
       const aspX = (parseInt(viewBoxList[2], 10) / 501);
       const aspY = (parseInt(viewBoxList[3], 10) / 501);
@@ -77,6 +78,9 @@ export class Grid2Component implements OnInit, AfterViewInit {
         });
       }
     }
+    if (!this.isDraggingGrid && this.isDraggingConnection && !this.isDraggingSVGLayer){
+      console.log('AAAAAAAAAAAA');
+    }
   }
 
   @HostListener('document:keyup', ['$event'])
@@ -89,6 +93,17 @@ export class Grid2Component implements OnInit, AfterViewInit {
     }
   }
 
+  // @HostListener( 'document:pointermove', [ '$event' ] )
+  // public moveHandleConnection(pointerEvent: PointerEvent, svgLayer: SVGLayer, connectionNode: ConnectionNode){
+  //   pointerEvent.preventDefault();
+  //   pointerEvent.stopPropagation();
+  //   console.log('FLSVLSKNVLSKDNVLKVN')
+  //   if (!this.isDraggingGrid && this.isDraggingConnection && !this.isDraggingSVGLayer){}
+  // }
+
+
+
+  //////////////////////////////////////////////////////////////////////////////
   constructor() { }
 
   ngOnInit(): void {
@@ -224,9 +239,11 @@ export class Grid2Component implements OnInit, AfterViewInit {
 
   //////////////////////////////////////////////////////////////////////////////
   // Handle SVGLayer
-  downHandleArrow(pointerEvent: PointerEvent, svgLayer: SVGLayer, connectionNode: ConnectionNode){
+  downHandleConnection(pointerEvent: PointerEvent, svgLayer: SVGLayer, connectionNode: ConnectionNode){
     pointerEvent.preventDefault();
-    pointerEvent.stopPropagation();
+    // pointerEvent.stopPropagation();
+
+    this.isDraggingConnection = true;
 
     const spX = +(pointerEvent.srcElement as Element ).getAttribute('cx');
     const spY = +(pointerEvent.srcElement as Element ).getAttribute('cy');
@@ -251,9 +268,9 @@ export class Grid2Component implements OnInit, AfterViewInit {
 
   }
 
-  upHandleArrow(pointerEvent: PointerEvent, svgLayer: SVGLayer, connectionNode: ConnectionNode){}
+  upHandleConnection(pointerEvent: PointerEvent, svgLayer: SVGLayer, connectionNode: ConnectionNode){}
 
-  moveHandleArrow(pointerEvent: PointerEvent, svgLayer: SVGLayer, connectionNode: ConnectionNode){}
+  moveHandleConnection(pointerEvent: PointerEvent, svgLayer: SVGLayer, connectionNode: ConnectionNode){}
 
 
 

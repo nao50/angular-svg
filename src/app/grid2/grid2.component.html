@@ -74,9 +74,9 @@
 
       <g *ngFor="let connectionNode of svgLayer.connectionNodes">
         <circle
-          (pointerdown)="downHandleArrow($event, svgLayer, connectionNode)"
-          (pointerup)="upHandleArrow($event, svgLayer, connectionNode)"
-          (pointermove)="moveHandleArrow($event, svgLayer, connectionNode)"
+          (pointerdown)="downHandleConnection($event, svgLayer, connectionNode)"
+          (pointerup)="upHandleConnection($event, svgLayer, connectionNode)"
+          (pointermove)="moveHandleConnection($event, svgLayer, connectionNode)"
           attr.cx="{{ connectionNode.cx }}"
           attr.cy="{{ connectionNode.cy }}"
           attr.r="{{ connectionNode.r }}"
