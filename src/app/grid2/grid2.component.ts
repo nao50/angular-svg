@@ -37,7 +37,9 @@ export class Grid2Component implements OnInit, AfterViewInit {
   }
   @HostListener( 'document:pointerup', [ '$event' ] )
   public upHandleSVGLayer(pointerEvent: PointerEvent, svgLayer: SVGLayer){
+    this.isDraggingGrid = false;
     this.isDraggingSVGLayer = false;
+    this.isDraggingConnection = false;
     this.draggingSVGLayer = null;
   }
 
@@ -100,6 +102,14 @@ export class Grid2Component implements OnInit, AfterViewInit {
   //   console.log('FLSVLSKNVLSKDNVLKVN')
   //   if (!this.isDraggingGrid && this.isDraggingConnection && !this.isDraggingSVGLayer){}
   // }
+
+  @HostListener( 'document:pointerup', [ '$event' ] )
+  public upHandleConnection(pointerEvent: PointerEvent, svgLayer: SVGLayer, connectionNode: ConnectionNode){
+    this.isDraggingGrid = false;
+    this.isDraggingSVGLayer = false;
+    this.isDraggingConnection = false;
+    this.draggingSVGLayer = null;
+  }
 
 
 
@@ -238,10 +248,10 @@ export class Grid2Component implements OnInit, AfterViewInit {
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  // Handle SVGLayer
+  // Handle Connection
   downHandleConnection(pointerEvent: PointerEvent, svgLayer: SVGLayer, connectionNode: ConnectionNode){
     pointerEvent.preventDefault();
-    // pointerEvent.stopPropagation();
+    pointerEvent.stopPropagation();
 
     this.isDraggingConnection = true;
 
@@ -268,7 +278,7 @@ export class Grid2Component implements OnInit, AfterViewInit {
 
   }
 
-  upHandleConnection(pointerEvent: PointerEvent, svgLayer: SVGLayer, connectionNode: ConnectionNode){}
+  // upHandleConnection(pointerEvent: PointerEvent, svgLayer: SVGLayer, connectionNode: ConnectionNode){}
 
   moveHandleConnection(pointerEvent: PointerEvent, svgLayer: SVGLayer, connectionNode: ConnectionNode){}
 
